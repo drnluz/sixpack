@@ -18,6 +18,8 @@ from config import CONFIG as cfg
 from metrics import init_statsd
 from utils import to_bool
 
+import rollbar
+
 try:
     import db
 except ConnectionError:
@@ -108,7 +110,10 @@ class Sixpack(object):
         except NotFound:
             return json_error({"message": "not found"}, request, 404)
         except HTTPException:
+            rollbar.report_exc_info(sys.exc_info(), request)
             return json_error({"message": "an internal error has occurred"}, request, 500)
+        except:
+            rollbar.report_exc_info(sys.exc_info(), request)
 
     def _incr_status_code(self, code):
         self.statsd.incr('response_code.{}'.format(code))
@@ -127,7 +132,10 @@ class Sixpack(object):
             return json_error({"message": "not found"}, request, 404)
         except HTTPException:
             self._incr_status_code(500)
+            rollbar.report_exc_info(sys.exc_info(), request)
             return json_error({"message": "an internal error has occurred"}, request, 500)
+        except:
+            rollbar.report_exc_info(sys.exc_info(), request)
 
     @service_unavailable_on_connection_error
     def on_status(self, request):

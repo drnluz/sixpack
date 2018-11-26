@@ -40,6 +40,7 @@ else:
         'cors_credentials': os.environ.get("SIXPACK_CORS_CREDENTIALS", "true"),
         'cors_methods': os.environ.get("SIXPACK_CORS_METHODS", "GET"),
         'cors_expose_headers': os.environ.get("SIXPACK_CORS_EXPOSE_HEADERS", "..."),
+        'rollbar_access_token': os.environ.get('SIXPACK_CONFIG_ROLLBAR_ACCESS_TOKEN', None),
     }
 
     if 'SIXPACK_CONFIG_REDIS_SENTINELS' in os.environ:
