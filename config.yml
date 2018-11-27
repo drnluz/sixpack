@@ -16,3 +16,5 @@ asset_path: gen
 secret_key: '<your secret key here>'
 
 rollbar_access_token:
+
+new_relic_enabled: False

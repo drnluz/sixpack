@@ -20,3 +20,4 @@ statsd==3.2.1
 Werkzeug==0.9.1
 yuicompressor==2.4.7
 rollbar==0.14.5
+newrelic==4.6.0.106
