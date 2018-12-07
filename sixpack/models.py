@@ -444,7 +444,7 @@ class Experiment(object):
             experiment.set_traffic_fraction(traffic_fraction)
             experiment.save()
 
-        # Only check traffic fraction if the experiment is being updated 
+        # Only check traffic fraction if the experiment is being updated
         # and the traffic fraction actually changes.
         if is_update and experiment.traffic_fraction != traffic_fraction:
             experiment.set_traffic_fraction(traffic_fraction)
