@@ -14,13 +14,4 @@ debug = 'SIXPACK_DEBUG' in os.environ
 
 app = create_app()
 
-if cfg.get('new_relic_enabled'):
-    import newrelic.agent
-    newrelic.agent.initialize('newrelic.ini')
-    app = newrelic.agent.WSGIApplicationWrapper(app)
-
-if cfg.get('rollbar_access_token') != None:
-    import rollbar
-    rollbar.init(cfg.get('rollbar_access_token'))
-
 run_simple('0.0.0.0', port, app, use_debugger=debug, use_reloader=debug)

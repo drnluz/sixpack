@@ -1,4 +1,7 @@
 import os
+import newrelic.agent
+newrelic.agent.initialize(os.environ.get('NEW_RELIC_CONFIG_FILE'))
+
 import re
 from socket import inet_aton
 import sys
@@ -19,6 +22,7 @@ from metrics import init_statsd
 from utils import to_bool
 
 import rollbar
+rollbar.init(cfg.get('rollbar_access_token'))
 
 try:
     import db
@@ -110,11 +114,9 @@ class Sixpack(object):
             return getattr(self, 'on_' + endpoint)(request, **values)
         except NotFound:
             return json_error({"message": "not found"}, request, 404)
-        except HTTPException:
-            rollbar.report_exc_info(sys.exc_info(), request)
-            return json_error({"message": "an internal error has occurred"}, request, 500)
         except:
             rollbar.report_exc_info(sys.exc_info(), request)
+            return json_error({"message": "an internal error has occurred"}, request, 500)
 
     def _incr_status_code(self, code):
         self.statsd.incr('response_code.{}'.format(code))
@@ -131,12 +133,10 @@ class Sixpack(object):
         except NotFound:
             self._incr_status_code(404)
             return json_error({"message": "not found"}, request, 404)
-        except HTTPException:
+        except:
             self._incr_status_code(500)
             rollbar.report_exc_info(sys.exc_info(), request)
             return json_error({"message": "an internal error has occurred"}, request, 500)
-        except:
-            rollbar.report_exc_info(sys.exc_info(), request)
 
     @service_unavailable_on_connection_error
     def on_status(self, request):
@@ -290,12 +290,11 @@ def is_ignored_ip(ip_address):
 
     return unquote(ip_address) in cfg.get('ignored_ip_addresses')
 
-
 # Method to run with built-in server
 def create_app():
     app = Sixpack(db.REDIS)
+    app = newrelic.agent.WSGIApplicationWrapper(app)
     return CORSMiddleware(app)
-
 
 #  Method to run with gunicorn
 def start(environ, start_response):
